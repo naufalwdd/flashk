@@ -66,8 +66,8 @@ Login tersedia di `POST /api/auth/login`; logout tersedia di `POST /api/auth/log
 Setelah menambah atau mengubah model, pastikan model diimpor oleh app factory supaya Flask-Migrate menemukannya. Buat revision lalu terapkan ke database:
 
 ```console
-flask --app main db migrate -m "describe schema change"
-flask --app main db upgrade
+flask db migrate -m "describe schema change"
+flask db upgrade
 ```
 
 Periksa file baru di `migrations/versions/` sebelum menjalankan upgrade. Jangan jalankan `db init` lagi setelah folder migration sudah diinisialisasi.
@@ -111,7 +111,7 @@ Periksa file baru di `migrations/versions/` sebelum menjalankan upgrade. Jangan 
    from modules.task import Task  # noqa: F401
    ```
 
-Lalu jalankan `flask --app main db migrate -m "add tasks"` dan `flask --app main db upgrade`.
+Lalu jalankan `flask db migrate -m "add tasks"` dan `flask db upgrade`.
 
 ### Database yang sudah dibuat sebelumnya
 
