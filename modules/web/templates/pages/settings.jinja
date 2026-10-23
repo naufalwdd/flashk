@@ -1,0 +1,36 @@
+{% extends "base.jinja" %}
+{% from "components/_ui.jinja" import section_heading, panel_heading %}
+
+{% block content %}
+{{ section_heading("MAKE IT YOURS", "Workspace settings", "Informasi workspace contoh yang dimuat langsung dari API.") }}
+<div class="settings-layout">
+  <nav class="settings-nav"><a class="settings-tab tab-current" href="#general">General</a><a class="settings-tab" href="#general">Members</a><a class="settings-tab" href="#general">Billing</a><a class="settings-tab" href="#general">Notifications</a></nav>
+  <section class="panel settings-panel" id="general">
+    {{ panel_heading("Workspace profile", "Read only · demo") }}
+    <div id="settings-data" class="settings-fields"><div class="loading-state">Mengambil konfigurasi...</div></div>
+    <button class="small-action settings-save" type="button" onclick="alert('Pengaturan demo bersifat read-only.')">Save changes</button>
+  </section>
+</div>
+<div class="api-caption"><span class="api-pulse"></span>Data dimuat dari <code>GET /api/demo/settings</code></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadSettings() {
+    const container = document.querySelector('#settings-data');
+    try {
+      const response = await fetch('/api/demo/settings', { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Gagal memuat settings.');
+      const fields = [['Workspace name', 'workspace'], ['Owner', 'owner'], ['Contact email', 'email'], ['Plan', 'plan'], ['Timezone', 'timezone'], ['Created', 'created']];
+      container.replaceChildren(...fields.map(([label, key]) => {
+        const field = document.createElement('label'); field.className = 'settings-field';
+        const title = document.createElement('span'); title.textContent = label;
+        const value = document.createElement('strong'); value.textContent = result.data[key];
+        field.append(title, value); return field;
+      }));
+    } catch (error) { container.textContent = error.message; container.classList.add('error-state'); }
+  }
+  loadSettings();
+</script>
+{% endblock %}

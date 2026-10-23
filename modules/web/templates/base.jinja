@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f3e8">
+  <link rel="icon" href="data:,">
+  <title>{{ page_title }} · Flashk</title>
+  <script src="{{ url_for('web.static', filename='vendor/tailwind.js') }}"></script>
+  <script>tailwind.config = { theme: { extend: { fontFamily: { display: ['Arial', 'sans-serif'] } } } };</script>
+  <link rel="stylesheet" href="{{ url_for('web.static', filename='css/app.css') }}">
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <aside class="app-sidebar" id="app-sidebar">
+      {% include "components/_sidebar.jinja" %}
+    </aside>
+    <div class="app-main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" type="button" aria-label="Buka navigasi">☰</button>
+        <div class="breadcrumb"><span>Workspace</span><b>/</b><strong>{{ page_title }}</strong></div>
+        <div class="topbar-actions"><span class="live-pill"><i></i> All systems normal</span><button class="icon-button" type="button" aria-label="Notifikasi">♧<i class="notification-dot"></i></button><span class="user-avatar avatar-coral">MP</span></div>
+      </header>
+      <main class="page-content">
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="app-footer"><span>FLASHK STUDIO · DEMO DATA</span><span>Made for your next move <b>✳</b></span></footer>
+    </div>
+  </div>
+  <div id="sidebar-scrim" class="sidebar-scrim"></div>
+  <script>
+    const appSidebar = document.querySelector('#app-sidebar');
+    const sidebarScrim = document.querySelector('#sidebar-scrim');
+    const toggleSidebar = () => {
+      appSidebar.classList.toggle('sidebar-open');
+      sidebarScrim.classList.toggle('scrim-visible');
+    };
+    document.querySelector('#mobile-menu').addEventListener('click', toggleSidebar);
+    sidebarScrim.addEventListener('click', toggleSidebar);
+
+    const logoutButton = document.querySelector('#logout-button');
+    logoutButton.addEventListener('click', async () => {
+      logoutButton.disabled = true;
+      logoutButton.textContent = 'Keluar...';
+      try {
+        const headers = { Accept: 'application/json' };
+        const token = sessionStorage.getItem('flashk_access_token');
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const response = await fetch('/api/auth/logout', { method: 'POST', headers });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || 'Logout gagal.');
+        sessionStorage.removeItem('flashk_access_token');
+        window.location.replace('/login');
+      } catch (error) {
+        logoutButton.disabled = false;
+        logoutButton.textContent = 'Keluar ↗';
+        window.alert(error.message || 'Tidak dapat menghubungi server.');
+      }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

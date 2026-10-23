@@ -1,0 +1,47 @@
+{% extends "base.jinja" %}
+{% from "components/_ui.jinja" import section_heading, panel_heading %}
+
+{% block content %}
+{{ section_heading("PEOPLE & ACCESS", "Workspace users", "Kelola orang-orang yang bergerak bersama di workspace ini.") }}
+<section class="panel user-panel">
+  <div class="users-toolbar"><div><h2>Semua pengguna</h2><span>5 members</span></div><button class="small-action" type="button" onclick="alert('Contoh tombol dummy — belum mengirim undangan.')">＋ Invite user</button></div>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>NAME</th><th>ROLE</th><th>STATUS</th><th></th></tr></thead><tbody id="users-body"><tr><td colspan="4" class="loading-state">Mengambil daftar pengguna...</td></tr></tbody></table></div>
+</section>
+<div class="api-caption"><span class="api-pulse"></span>Data dimuat dari database melalui <code>GET /api/users</code></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadUsers() {
+    const body = document.querySelector('#users-body');
+    try {
+      const response = await fetch('/api/users', { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Gagal memuat pengguna.');
+      body.replaceChildren(...result.data.map((user) => {
+        const row = document.createElement('tr');
+        const personCell = document.createElement('td');
+        const person = document.createElement('div'); person.className = 'table-person';
+        const avatar = document.createElement('span'); avatar.className = `user-avatar ${['avatar-coral', 'avatar-mint', 'avatar-yellow', 'avatar-lilac', 'avatar-blue'][user.id % 5]}`;
+        avatar.textContent = user.full_name.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase();
+        const copy = document.createElement('span'); copy.className = 'person-copy';
+        const name = document.createElement('strong'); name.textContent = user.full_name;
+        const email = document.createElement('small'); email.textContent = user.email || user.username;
+        copy.append(name, email); person.append(avatar, copy); personCell.append(person);
+        const role = document.createElement('td');
+        const roleChip = document.createElement('span'); roleChip.className = 'role-chip'; roleChip.textContent = user.username === 'admin' ? 'Admin' : 'Member'; role.append(roleChip);
+        const status = document.createElement('td');
+        const statusChip = document.createElement('span'); statusChip.className = `status-chip ${user.is_active ? 'status-active' : 'status-pending'}`;
+        const statusDot = document.createElement('i'); const statusText = document.createElement('span'); statusText.textContent = user.is_active ? 'Aktif' : 'Nonaktif';
+        statusChip.append(statusDot, statusText); status.append(statusChip);
+        const more = document.createElement('td'); more.className = 'table-more'; more.textContent = '•••';
+        row.append(personCell, role, status, more); return row;
+      }));
+    } catch (error) {
+      const row = document.createElement('tr'); const cell = document.createElement('td');
+      cell.colSpan = 4; cell.className = 'error-state'; cell.textContent = error.message; row.append(cell); body.replaceChildren(row);
+    }
+  }
+  loadUsers();
+</script>
+{% endblock %}

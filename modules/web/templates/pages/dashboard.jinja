@@ -1,0 +1,64 @@
+{% extends "base.jinja" %}
+{% from "components/_ui.jinja" import section_heading, stat_card, panel_heading %}
+
+{% block content %}
+{{ section_heading("FRIDAY, 23 OCTOBER 2026", "Good morning, Maya!", "Ini ringkasan aktivitas workspace-mu hari ini.") }}
+<div class="stat-grid" id="overview-stats">
+  {{ stat_card("revenue", "Revenue hari ini", "Memuat...", "—", "tone-yellow") }}
+  {{ stat_card("orders", "Pesanan", "Memuat...", "—", "tone-coral") }}
+  {{ stat_card("customers", "Pelanggan aktif", "Memuat...", "—", "tone-mint") }}
+  {{ stat_card("completion", "Selesai tepat waktu", "Memuat...", "—", "tone-lilac") }}
+</div>
+<div class="content-grid dashboard-grid">
+  <section class="panel activity-panel">
+    {{ panel_heading("Aktivitas terbaru", "Live feed") }}
+    <div id="activity-list" class="activity-list"><div class="loading-state">Mengambil aktivitas terbaru...</div></div>
+    <a class="panel-link" href="{{ url_for('web.users_page') }}">Lihat workspace team <span>→</span></a>
+  </section>
+  <section class="panel focus-panel">
+    {{ panel_heading("Fokus hari ini", "3 items") }}
+    <div class="focus-list">
+      <div class="focus-item"><span class="check-box checked">✓</span><span><strong>Review weekly metrics</strong><small>Growth · 09:30</small></span><span class="priority priority-high">HIGH</span></div>
+      <div class="focus-item"><span class="check-box"></span><span><strong>Approve campaign assets</strong><small>Marketing · 13:00</small></span><span class="priority priority-mid">MED</span></div>
+      <div class="focus-item"><span class="check-box"></span><span><strong>Sync dengan tim produk</strong><small>Product · 15:30</small></span><span class="priority priority-low">LOW</span></div>
+    </div>
+    <button class="add-task" type="button" onclick="alert('Contoh tombol dummy — belum menyimpan perubahan.')">＋ Tambah tugas</button>
+  </section>
+</div>
+<div class="api-caption"><span class="api-pulse"></span>Data dashboard dimuat dari <code>GET /api/dashboard/overview</code></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadOverview() {
+    const list = document.querySelector('#activity-list');
+    try {
+      const response = await fetch('/api/dashboard/overview', { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Gagal memuat dashboard.');
+      result.data.stats.forEach((stat) => {
+        const card = document.querySelector(`[data-stat="${stat.key}"]`);
+        if (!card) return;
+        card.querySelector('.stat-card-top span').textContent = stat.label;
+        card.querySelector('.stat-value').textContent = stat.value;
+        card.querySelector('.stat-delta').textContent = stat.delta;
+      });
+      list.replaceChildren(...result.data.activity.map((activity) => {
+        const row = document.createElement('article');
+        row.className = 'activity-row';
+        const marker = document.createElement('span'); marker.className = `activity-marker ${activity.tone}`; marker.textContent = '✳';
+        const copy = document.createElement('span'); copy.className = 'activity-copy';
+        const title = document.createElement('strong'); title.textContent = activity.title;
+        const detail = document.createElement('small'); detail.textContent = activity.detail;
+        copy.append(title, detail);
+        const time = document.createElement('time'); time.className = 'activity-time'; time.textContent = activity.time;
+        row.append(marker, copy, time); return row;
+      }));
+    } catch (error) {
+      list.textContent = error.message;
+      list.classList.add('error-state');
+    }
+  }
+  loadOverview();
+</script>
+{% endblock %}

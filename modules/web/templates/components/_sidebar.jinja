@@ -1,0 +1,17 @@
+<div class="sidebar-brand">
+  <span class="brand-mark">F</span>
+  <span>FLASHK<span class="brand-dot">.</span></span>
+</div>
+<div class="workspace-switcher"><span class="workspace-avatar">FS</span><span><strong>Flashk Studio</strong><small>Demo workspace</small></span><span class="switch-arrow">⌄</span></div>
+<p class="nav-label">WORKSPACE</p>
+<nav class="side-nav" aria-label="Navigasi utama">
+  <a class="nav-link {{ 'is-active' if active_page == 'dashboard' else '' }}" href="{{ url_for('web.dashboard_page') }}"><span class="nav-icon">▦</span> Overview</a>
+  <a class="nav-link {{ 'is-active' if active_page == 'users' else '' }}" href="{{ url_for('web.users_page') }}"><span class="nav-icon">♙</span> Users <span class="nav-count">5</span></a>
+  <a class="nav-link {{ 'is-active' if active_page == 'roles' else '' }}" href="{{ url_for('web.roles_page') }}"><span class="nav-icon">♧</span> Roles</a>
+  <a class="nav-link {{ 'is-active' if active_page == 'reports' else '' }}" href="{{ url_for('web.reports_page') }}"><span class="nav-icon">▥</span> Reports</a>
+  <a class="nav-link {{ 'is-active' if active_page == 'settings' else '' }}" href="{{ url_for('web.settings_page') }}"><span class="nav-icon">⚙</span> Settings</a>
+</nav>
+<div class="sidebar-bottom">
+  <div class="help-card"><span class="help-spark">✳</span><strong>Butuh bantuan?</strong><p>Tim kami siap membantu workspace-mu.</p><a href="mailto:hello@flashk.demo">Hubungi support <span>↗</span></a></div>
+  <div class="sidebar-user"><span class="user-avatar avatar-coral">MP</span><span><strong>Maya Putri</strong><small>Workspace admin</small></span><button class="logout-button" id="logout-button" type="button">Keluar ↗</button></div>
+</div>

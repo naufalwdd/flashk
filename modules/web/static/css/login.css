@@ -1,0 +1,31 @@
+:root { font-family: 'Arial', sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.border-3 { border-width: 3px; }
+.brand-panel { isolation: isolate; }
+.brand-panel::before {
+  position: absolute; inset: 0; z-index: -1; content: '';
+  background-image: radial-gradient(#171717 1.2px, transparent 1.2px);
+  background-size: 24px 24px; opacity: .09;
+}
+.sticker { position: absolute; z-index: 0; display: grid; place-items: center; border: 3px solid #171717; box-shadow: 5px 5px 0 #171717; font-weight: 900; }
+.sticker-star { right: 12%; top: 22%; width: 76px; height: 76px; border-radius: 50%; background: #ffadad; font-size: 42px; transform: rotate(12deg); }
+.sticker-note { right: 12%; bottom: 22%; width: 96px; height: 96px; background: #ffe66d; text-align: center; font-size: 13px; line-height: 1.05; transform: rotate(8deg); }
+.sticker-circle { right: 30%; top: 54%; width: 56px; height: 56px; border-radius: 50%; background: #fff; font-size: 30px; transform: rotate(-12deg); }
+.neo-input { min-height: 54px; border: 2px solid #171717; border-radius: 0; background: #fff; padding: 0 15px; font: inherit; font-size: 15px; font-weight: 600; box-shadow: 4px 4px 0 #171717; outline: none; transition: box-shadow .12s ease, transform .12s ease, background .12s ease; }
+.neo-input::placeholder { color: #8a8a8a; }
+.neo-input:focus { background: #fffef6; box-shadow: 6px 6px 0 #171717; transform: translate(-2px, -2px); }
+.neo-button { min-height: 56px; border: 2px solid #171717; border-radius: 0; box-shadow: 5px 5px 0 #171717; transition: transform .12s ease, box-shadow .12s ease, background .12s ease; }
+.neo-button:hover { background: #ffd43b; transform: translate(-2px, -2px); box-shadow: 7px 7px 0 #171717; }
+.neo-button:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 #171717; }
+.neo-button:disabled { cursor: wait; opacity: .7; }
+@media (max-width: 1023px) {
+  .sticker-star { right: 9%; top: 18%; width: 58px; height: 58px; font-size: 32px; }
+  .sticker-note { right: 12%; bottom: 15%; width: 76px; height: 76px; font-size: 11px; }
+  .sticker-circle { right: 32%; top: 59%; width: 46px; height: 46px; }
+}
+@media (max-width: 560px) {
+  .sticker-star { right: 7%; top: 12%; }
+  .sticker-note { right: 9%; bottom: 12%; }
+  .sticker-circle { display: none; }
+}

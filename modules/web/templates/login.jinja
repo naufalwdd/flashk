@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f3e8">
+  <link rel="icon" href="data:,">
+    <title>Masuk · Flashk</title>
+    <script src="{{ url_for('web.static', filename='vendor/tailwind.js') }}"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { display: ['Arial', 'sans-serif'] } } }
+        };
+    </script>
+    <link rel="stylesheet" href="{{ url_for('web.static', filename='css/login.css') }}">
+</head>
+
+<body class="min-h-screen bg-[#f7f3e8] text-[#171717]">
+    <main class="login-layout grid min-h-screen lg:grid-cols-[1.05fr_.95fr]">
+        <section
+            class="brand-panel relative flex min-h-[280px] flex-col justify-between overflow-hidden border-b-4 border-black bg-[#a8e6cf] p-7 sm:p-12 lg:min-h-screen lg:border-b-0 lg:border-r-4">
+            <div class="relative z-10 flex items-center gap-3">
+                <div
+                    class="grid h-12 w-12 place-items-center border-3 border-black bg-[#ffe66d] text-2xl font-black shadow-[4px_4px_0_#171717]">
+                    F</div>
+                <span class="text-xl font-black tracking-tight">FLASHK<span class="text-[#ff6b6b]">.</span></span>
+            </div>
+            <div class="relative z-10 max-w-xl py-10 lg:py-0">
+                <p
+                    class="mb-4 inline-block border-2 border-black bg-white px-3 py-1 text-xs font-black uppercase tracking-[.18em] shadow-[3px_3px_0_#171717]">
+                    Workspace starts here</p>
+                <h1 class="max-w-lg text-5xl font-black leading-[.98] tracking-[-.06em] sm:text-7xl">Kerja
+                    rapi.<br><span class="text-[#ff6b6b]">Jalan terus.</span></h1>
+                <p class="mt-6 max-w-md text-base font-semibold leading-7 sm:text-lg">Satu tempat untuk masuk,
+                    mengelola, dan mengembangkan alur kerja timmu.</p>
+            </div>
+            <div class="relative z-10 flex items-center justify-between text-xs font-bold">
+                <span>BUILT FOR THE NEXT MOVE</span><span>© FLASHK 2026</span>
+            </div>
+            <div aria-hidden="true" class="sticker sticker-star">✳</div>
+            <div aria-hidden="true" class="sticker sticker-note">MAKE<br>IT<br>HAPPEN</div>
+            <div aria-hidden="true" class="sticker sticker-circle">↗</div>
+        </section>
+
+        <section class="flex items-center justify-center px-5 py-12 sm:px-10 lg:px-14">
+            <div class="w-full max-w-md">
+                <div class="mb-8">
+                    <p class="mb-2 text-xs font-black uppercase tracking-[.2em] text-[#555]">Selamat datang kembali</p>
+                    <h2 class="text-4xl font-black tracking-[-.05em] sm:text-5xl">Masuk dulu.</h2>
+                    <p class="mt-3 font-medium text-[#555]">Lanjutkan pekerjaanmu di Flashk.</p>
+                </div>
+
+                <form id="login-form" class="space-y-5" novalidate>
+                    <div>
+                        <label for="username" class="mb-2 block text-sm font-extrabold">Username</label>
+                        <input id="username" name="username" class="neo-input w-full" type="text"
+                            placeholder="contoh: naufal" autocomplete="username" required>
+                    </div>
+                    <div>
+                        <label for="password" class="mb-2 block text-sm font-extrabold">Password</label>
+                        <input id="password" name="password" class="neo-input w-full" type="password"
+                            placeholder="Masukkan password" autocomplete="current-password" required>
+                    </div>
+                    <p id="form-message" class="hidden border-2 border-black bg-[#ffadad] px-4 py-3 text-sm font-bold"
+                        role="alert"></p>
+                    <button id="login-button"
+                        class="neo-button w-full bg-[#ffe66d] px-5 py-4 text-sm font-black uppercase tracking-[.16em]"
+                        type="submit">
+                        <span id="button-label">Masuk ke Flashk</span><span aria-hidden="true"> ↗</span>
+                    </button>
+                </form>
+                <p class="mt-7 text-center text-xs font-semibold text-[#666]">Akun dikelola oleh administrator
+                    workspace.</p>
+            </div>
+        </section>
+    </main>
+    <script>
+        const form = document.querySelector('#login-form');
+        const button = document.querySelector('#login-button');
+        const buttonLabel = document.querySelector('#button-label');
+        const message = document.querySelector('#form-message');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            message.classList.add('hidden');
+            button.disabled = true;
+            buttonLabel.textContent = 'Memeriksa...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        username: form.elements.username.value.trim(),
+                        password: form.elements.password.value,
+                    }),
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Login gagal. Periksa kembali data masukmu.');
+                }
+
+                sessionStorage.setItem('flashk_access_token', result.data.access_token);
+                message.textContent = 'Login berhasil. Kamu sudah masuk ke Flashk.';
+                message.classList.remove('hidden', 'bg-[#ffadad]');
+                message.classList.add('bg-[#a8e6cf]');
+        window.location.assign('/app');
+            } catch (error) {
+                message.textContent = error.message || 'Tidak dapat menghubungi server.';
+                message.classList.remove('hidden', 'bg-[#a8e6cf]');
+                message.classList.add('bg-[#ffadad]');
+            } finally {
+                button.disabled = false;
+                buttonLabel.textContent = 'Masuk ke Flashk';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+{% extends "base.jinja" %}
+{% from "components/_ui.jinja" import section_heading %}
+
+{% block content %}
+{{ section_heading("PEOPLE & ACCESS", "Workspace roles", "Atur tingkat akses dan izin untuk setiap tipe anggota workspace.") }}
+<section class="panel roles-panel">
+  <div class="users-toolbar">
+    <div><h2>Role yang tersedia</h2><span id="roles-count">Memuat...</span></div>
+    <button class="small-action" type="button" onclick="alert('Contoh tombol dummy — pembuatan role belum diaktifkan.')">＋ Buat role</button>
+  </div>
+  <div id="roles-grid" class="roles-grid" aria-live="polite">
+    <p class="loading-state">Mengambil daftar role...</p>
+  </div>
+</section>
+<div class="api-caption"><span class="api-pulse"></span>Data dimuat dari database melalui <code>GET /api/roles</code></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadRoles() {
+    const grid = document.querySelector('#roles-grid');
+    const count = document.querySelector('#roles-count');
+    try {
+      const response = await fetch('/api/roles', { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Gagal memuat role.');
+      count.textContent = `${result.data.length} roles`;
+      if (!result.data.length) {
+        grid.innerHTML = '<p class="loading-state">Belum ada role. Jalankan seeder untuk menambahkan data contoh.</p>';
+        return;
+      }
+      grid.replaceChildren(...result.data.map((role, index) => {
+        const card = document.createElement('article'); card.className = 'role-card';
+        const top = document.createElement('div'); top.className = 'role-card-top';
+        const mark = document.createElement('span'); mark.className = `role-mark role-mark-${index % 4}`; mark.textContent = role.name.slice(0, 1).toUpperCase();
+        const badge = document.createElement('span'); badge.className = 'role-system-badge'; badge.textContent = role.is_system ? 'SYSTEM' : 'CUSTOM';
+        top.append(mark, badge);
+        const title = document.createElement('h3'); title.textContent = role.name;
+        const slug = document.createElement('code'); slug.className = 'role-slug'; slug.textContent = role.slug;
+        const description = document.createElement('p'); description.className = 'role-description'; description.textContent = role.description;
+        const permissionHeading = document.createElement('strong'); permissionHeading.className = 'permission-heading'; permissionHeading.textContent = 'PERMISSIONS';
+        const permissions = document.createElement('div'); permissions.className = 'permission-list';
+        (role.permissions || []).forEach((permission) => {
+          const chip = document.createElement('span'); chip.className = 'permission-chip'; chip.textContent = permission; permissions.append(chip);
+        });
+        card.append(top, title, slug, description, permissionHeading, permissions);
+        return card;
+      }));
+    } catch (error) {
+      count.textContent = 'Error';
+      const message = document.createElement('p'); message.className = 'error-state'; message.textContent = error.message;
+      grid.replaceChildren(message);
+    }
+  }
+  loadRoles();
+</script>
+{% endblock %}

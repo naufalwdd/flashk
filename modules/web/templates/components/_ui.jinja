@@ -1,0 +1,21 @@
+{% macro section_heading(eyebrow, title, description) -%}
+<div class="section-heading">
+  <div>
+    <p class="eyebrow">{{ eyebrow }}</p>
+    <h1>{{ title }}</h1>
+    <p class="section-description">{{ description }}</p>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro stat_card(key, label, value, delta, tone) -%}
+<article class="stat-card {{ tone }}" data-stat="{{ key }}">
+  <div class="stat-card-top"><span>{{ label }}</span><span class="stat-mark" aria-hidden="true">↗</span></div>
+  <strong class="stat-value">{{ value }}</strong>
+  <span class="stat-delta">{{ delta }}</span>
+</article>
+{%- endmacro %}
+
+{% macro panel_heading(title, note=none) -%}
+<div class="panel-heading"><h2>{{ title }}</h2>{% if note %}<span>{{ note }}</span>{% endif %}</div>
+{%- endmacro %}

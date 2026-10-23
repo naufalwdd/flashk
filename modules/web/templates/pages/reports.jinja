@@ -1,0 +1,60 @@
+{% extends "base.jinja" %}
+{% from "components/_ui.jinja" import section_heading, panel_heading %}
+
+{% block content %}
+{{ section_heading("NUMBERS THAT MOVE", "Reports", "Lihat performa workspace dan tren revenue dummy.") }}
+<section class="panel report-hero">
+  <div><p class="eyebrow">TOTAL REVENUE · 6 BULAN</p><strong id="report-total" class="report-total">Memuat...</strong><p id="report-change" class="report-change">Mengambil data laporan...</p></div>
+  <span class="report-stamp">DEMO<br>REPORT</span>
+</section>
+<div class="content-grid reports-grid">
+  <section class="panel chart-panel">
+    {{ panel_heading("Revenue per bulan", "Mei — Okt 2026") }}
+    <div id="revenue-chart" class="revenue-chart"><div class="loading-state">Memuat grafik...</div></div>
+  </section>
+  <section class="panel channels-panel">
+    {{ panel_heading("Sumber revenue", "By channel") }}
+    <div id="channel-list" class="channel-list"><div class="loading-state">Memuat channel...</div></div>
+  </section>
+</div>
+<div class="api-caption"><span class="api-pulse"></span>Data dimuat dari <code>GET /api/demo/reports</code></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function loadReports() {
+    const chart = document.querySelector('#revenue-chart');
+    const channels = document.querySelector('#channel-list');
+    try {
+      const response = await fetch('/api/demo/reports', { headers: { Accept: 'application/json' } });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Gagal memuat laporan.');
+      document.querySelector('#report-total').textContent = result.data.total;
+      document.querySelector('#report-change').textContent = result.data.change;
+      chart.replaceChildren(...result.data.bars.map((bar) => {
+        const item = document.createElement('div'); item.className = 'chart-column';
+        const amount = document.createElement('small'); amount.textContent = bar.amount;
+        const track = document.createElement('div'); track.className = 'chart-track';
+        const fill = document.createElement('div'); fill.className = 'chart-bar'; fill.style.height = `${bar.percent}%`; track.append(fill);
+        const label = document.createElement('span'); label.textContent = bar.label;
+        item.append(amount, track, label); return item;
+      }));
+      channels.replaceChildren(...result.data.channels.map((channel) => {
+        const item = document.createElement('div'); item.className = 'channel-item';
+        const top = document.createElement('div'); top.className = 'channel-top';
+        const name = document.createElement('strong'); name.textContent = channel.name;
+        const value = document.createElement('span'); value.textContent = channel.value;
+        top.append(name, value);
+        const line = document.createElement('div'); line.className = 'channel-line';
+        const fill = document.createElement('span'); fill.className = channel.tone; fill.style.width = channel.share;
+        line.append(fill);
+        const share = document.createElement('small'); share.textContent = `${channel.share} dari total revenue`;
+        item.append(top, line, share); return item;
+      }));
+    } catch (error) {
+      chart.textContent = error.message; chart.classList.add('error-state');
+    }
+  }
+  loadReports();
+</script>
+{% endblock %}
