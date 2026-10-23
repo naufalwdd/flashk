@@ -23,7 +23,7 @@ def log_errors(function):
 
 
 def protected(function):
-    """Protect an endpoint using Narva's secret, JWT, or browser-session flow."""
+    """Protect an endpoint using application secret key, JWT, or browser-session flow."""
     @wraps(function)
     def wrapped(*args, **kwargs):
         supplied_secret = request.headers.get("X-Secret-Key")
